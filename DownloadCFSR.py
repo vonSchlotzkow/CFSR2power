@@ -2,9 +2,12 @@
 from optparse import OptionParser
 from numpy import meshgrid
 
+years=range(1979,2010)
+months=range(1,13)
+
 parser = OptionParser()
 parser.add_option("--year", dest="year", type=int,
-                  help="the year to download, all years if left blank")
+                  help="the year to download, all years (%i-%i) if left blank" % (years[0],years[-1]))
 parser.add_option("--month", dest="month", type=int,
                   help="the month to download, all months if left blank")
 parser.add_option("--datafield", dest="field",
@@ -17,9 +20,6 @@ parser.add_option("--debug",
 (options, args) = parser.parse_args()
 
 assert(options.field in ["wnd10m"])
-
-years=range(1979,2010)
-months=range(1,13)
 
 if options.year:
     years=[options.year]
