@@ -1,3 +1,4 @@
+#!/bin/env python
 from optparse import OptionParser
 from numpy import meshgrid
 
