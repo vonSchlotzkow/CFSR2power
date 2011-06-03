@@ -51,4 +51,4 @@ print "Creating wget file for data field", options.field
 print "for the years:", years
 print "and months:", months
 fname=wgetfile(options.field,years,months)
-print "now you use:\n    wget --base=%s --continue --input-file=%s\nto download the files." % (base,fname) 
+print "now you use:\n    wget --base=%s --continue -nH -r --cut-dirs=2 --input-file=%s\nto download the files." % (base,fname) 
