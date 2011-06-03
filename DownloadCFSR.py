@@ -39,14 +39,16 @@ def createfilenames(field,year,month):
     #197902/wnd10m.l.gdas.197902.grb2.inv
 
 def wgetfile(field,years,months):
-    f=file("download_%s.wget" % (field,), "w")
+    fname="download_%s.wget" % (field,)
+    f=file(fname, "w")
     #f.write("#!/usr/bin/wget --base=%s  -i \n" % (base,))
     M,Y=meshgrid(months,years)
     for m,y in zip(M.ravel(),Y.ravel()):
         map(lambda x: f.write(x + "\n"), createfilenames(field,y,m))
+    return fname
 
 print "Creating wget file for data field", options.field
 print "for the years:", years
 print "and months:", months
-wgetfile(options.field,years,months)
-
+fname=wgetfile(options.field,years,months)
+print "now you use:\n    wget --base=%s --continue --input-file=%s\nto download the files." % (base,fname) 
