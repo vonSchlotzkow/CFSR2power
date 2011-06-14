@@ -8,6 +8,10 @@ months=array(range(1,13))
 parser = OptionParser()
 parser.add_option("--year", dest="year", type=int,
                   help="the year to download, all years (%i-%i) if left blank" % (years[0],years[-1]))
+parser.add_option("--minyear", dest="minyear", type=int, default=years[0],
+                  help="min year to download [%i]" % (years[0],))
+parser.add_option("--maxyear", dest="maxyear", type=int, default=years[-1],
+                  help="max year to download [%i]" % (years[-1],))
 parser.add_option("--month", dest="month", type=int,
                   help="the month to download, all months if left blank")
 parser.add_option("--datafield", dest="field",
@@ -27,6 +31,8 @@ assert(options.field in ["wnd10m","tmp2m","dswsfc"])
 if options.year:
     assert(options.year in years)
     years=array([options.year])
+years=years[years>=options.minyear]
+years=years[years<=options.maxyear]
 if options.month:
     assert(options.month in months)
     months=array([options.month])
