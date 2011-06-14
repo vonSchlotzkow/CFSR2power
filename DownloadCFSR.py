@@ -22,11 +22,13 @@ parser.add_option("--debug",
 
 (options, args) = parser.parse_args()
 
-assert(options.field in ["wnd10m"])
+assert(options.field in ["wnd10m","tmp2m","dswsfc"])
 
 if options.year:
+    assert(options.year in years)
     years=[options.year]
 if options.month:
+    assert(options.month in months)
     months=[options.month]
 
 base="http://nomads.ncdc.noaa.gov/data/cfsr/"
