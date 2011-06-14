@@ -13,6 +13,9 @@ parser.add_option("--month", dest="month", type=int,
 parser.add_option("--datafield", dest="field",
                   type=str,
                   help="the datafield to download")
+parser.add_option("--lowresonly",
+                  action="store_true", dest="lowresonly",
+                  help="download only the low resoultion files")
 parser.add_option("--debug",
                   action="store_true", dest="debug",
                   help="run in debug mode")
@@ -28,27 +31,28 @@ if options.month:
 
 base="http://nomads.ncdc.noaa.gov/data/cfsr/"
 
-def createfilenames(field,year,month):
+def createfilenames(field,year,month,lowresonly=False):
     d="%i%02i" % (year,month)
     r=[]
     r.append("%s/%s.l.gdas.%s.grb2" % (d,field,d))
     r.append("%s/%s.l.gdas.%s.grb2.inv" % (d,field,d))
-    r.append("%s/%s.gdas.%s.grb2" % (d,field,d))
-    r.append("%s/%s.gdas.%s.grb2.inv" % (d,field,d))
+    if not(lowresonly):
+        r.append("%s/%s.gdas.%s.grb2" % (d,field,d))
+        r.append("%s/%s.gdas.%s.grb2.inv" % (d,field,d))
     return r
     #197902/wnd10m.l.gdas.197902.grb2.inv
 
-def wgetfile(field,years,months):
+def wgetfile(field,years,months,lowresonly=False):
     fname="download_%s.wget" % (field,)
     f=file(fname, "w")
     #f.write("#!/usr/bin/wget --base=%s  -i \n" % (base,))
     M,Y=meshgrid(months,years)
     for m,y in zip(M.ravel(),Y.ravel()):
-        map(lambda x: f.write(x + "\n"), createfilenames(field,y,m))
+        map(lambda x: f.write(x + "\n"), createfilenames(field,y,m,lowresonly=lowresonly))
     return fname
 
 print "Creating wget file for data field", options.field
 print "for the years:", years
 print "and months:", months
-fname=wgetfile(options.field,years,months)
+fname=wgetfile(options.field,years,months,lowresonly=options.lowresonly)
 print "now you use:\n    wget --base=%s --continue -nH -r --cut-dirs=2 --input-file=%s\nto download the files." % (base,fname) 
