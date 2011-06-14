@@ -1,9 +1,9 @@
 #!/bin/env python
 from optparse import OptionParser
-from numpy import meshgrid
+from numpy import meshgrid,array
 
-years=range(1979,2010)
-months=range(1,13)
+years=array(range(1979,2010))
+months=array(range(1,13))
 
 parser = OptionParser()
 parser.add_option("--year", dest="year", type=int,
@@ -26,10 +26,10 @@ assert(options.field in ["wnd10m","tmp2m","dswsfc"])
 
 if options.year:
     assert(options.year in years)
-    years=[options.year]
+    years=array([options.year])
 if options.month:
     assert(options.month in months)
-    months=[options.month]
+    months=array([options.month])
 
 base="http://nomads.ncdc.noaa.gov/data/cfsr/"
 
