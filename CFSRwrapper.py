@@ -19,6 +19,6 @@ class CFSRwrapper(object):
     def next(self):
         if self.grbs.messagenumber + self.recpertimestep > self.grbs.messages:
             raise StopIteration
-        if self.grbs.messagenumber % ((self.spinup + self.nonspinup)*self.recpertimestep) == 0:
+        if self.spinup and (self.grbs.messagenumber % ((self.spinup + self.nonspinup)*self.recpertimestep) == 0):
             self.step()
         return self.step()
