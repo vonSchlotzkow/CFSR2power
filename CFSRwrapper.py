@@ -1,13 +1,12 @@
 import pygrib
 import re
 
-class CFSRwrapper(object):
+class CFSRwrapper(pygrib.open):
     """Iterator for traversing grbs file skipping spin-up timestamps"""
     recpertimestep=None
     spinup=None
     nonspinup=None
     instant=None
-    grbs=None
     fieldnametoparam={
         'dswsfc':(1,1,6,False),
         'tmp2m':(1,1,6,True),
@@ -30,16 +29,18 @@ class CFSRwrapper(object):
             self.spinup=spinup
             self.nonspinup=nonspinup
             self.instant=instant
-        self.grbs=pygrib.open(fname)
-                
+        pygrib.open.__init__(self,fname)
+    def __new__(cls, fname, *args, **kwargs):
+        obj=pygrib.open.__new__(cls, fname)
+        return obj
     def __iter__(self):
-        self.grbs.rewind()
+        self.rewind()
         return self
     def step(self):
-        return self.grbs.read(self.recpertimestep)
+        return self.read(self.recpertimestep)
     def next(self):
-        if self.grbs.messagenumber + self.recpertimestep > self.grbs.messages:
+        if self.messagenumber + self.recpertimestep > self.messages:
             raise StopIteration
-        if self.spinup and (self.grbs.messagenumber % ((self.spinup + self.nonspinup)*self.recpertimestep) == 0):
+        if self.spinup and (self.messagenumber % ((self.spinup + self.nonspinup)*self.recpertimestep) == 0):
             self.step()
         return self.step()
