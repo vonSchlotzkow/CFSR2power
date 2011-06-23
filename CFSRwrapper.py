@@ -7,28 +7,33 @@ class CFSRwrapper(pygrib.open):
     spinup=None
     nonspinup=None
     instant=None
+    unaverage=None
     fieldnametoparam={
-        'dswsfc':(1,1,6,False),
-        'tmp2m':(1,1,6,True),
-        'wnd10m':(2,1,6,True),
+        'dswsfc':(1,1,6,False,True),
+        'tmp2m':(1,1,6,True,False),
+        'wnd10m':(2,1,6,True,False),
         }
-    def __init__(self, fname,recpertimestep=None,spinup=None,nonspinup=None,instant=None,autoconf=True):
+    _previousdata=None
+    _currentdata=None
+    def __init__(self, fname,recpertimestep=None,spinup=None,nonspinup=None,instant=None,unaverage=None,autoconf=True):
         if autoconf:
             assert(recpertimestep==None)
             assert(spinup==None)
             assert(nonspinup==None)
             assert(instant==None)
+            assert(unaverage==None)
             m=re.match("([^\./]+)\.l\.gdas\..*grb2",fname)
             if m:
                 fieldname=m.groups()[0]
             else:
                 fieldname=re.match("([^\./]+)\.gdas\..*grb2",fname).groups()[0]
-            (self.recpertimestep,self.spinup,self.nonspinup,self.instant)=self.fieldnametoparam[fieldname]
+            (self.recpertimestep,self.spinup,self.nonspinup,self.instant,self.unaverage)=self.fieldnametoparam[fieldname]
         else:
             self.recpertimestep=recpertimestep
             self.spinup=spinup
             self.nonspinup=nonspinup
             self.instant=instant
+            self.unaverage=unaverage
         pygrib.open.__init__(self,fname)
     def __new__(cls, fname, *args, **kwargs):
         obj=pygrib.open.__new__(cls, fname)
