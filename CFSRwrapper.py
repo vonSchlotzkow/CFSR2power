@@ -37,7 +37,7 @@ class CFSRwrapper(pygrib.open):
         self.rewind()
         return self
     def messagestep(self):
-        return self.messagenumber % ((self.spinup + self.nonspinup)*self.recpertimestep)
+        return self.messagenumber/self.recpertimestep % ((self.spinup + self.nonspinup))
     def isspinupstep(self):
         return self.spinup and (self.messagestep() == 0)
     def step(self):
