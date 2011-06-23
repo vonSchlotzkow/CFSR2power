@@ -1,6 +1,9 @@
 import pygrib
 import re
 
+def deepcopydatatolist(c):
+    return map(lambda x: x["values"].copy() , c)
+
 class CFSRwrapper(pygrib.open):
     """Iterator for traversing grbs file skipping spin-up timestamps"""
     recpertimestep=None
@@ -46,7 +49,37 @@ class CFSRwrapper(pygrib.open):
     def isspinupstep(self):
         return self.spinup and (self.messagestep() == 0)
     def step(self):
-        return self.read(self.recpertimestep)
+        """read the next step of the raw data series
+
+        If 'unaverage' reverse the averaging, and return instantaneous
+        data.  Unaveraging is done according to
+
+        $$ \tilde{x}_T = \frac{1}{T} \sum_{t=1}^{T} x_t \\
+        = \sum_{t=1}^{T-1} \frac{T-1}{T} \frac{x_t}{T-1} + \frac{x_T}{T} \\
+        = \frac{T-1}{T} \tilde{x}_{T-1} + \frac{x_T}{T}\\
+        x_{t} = T\tilde{x}_{T} -(T-1)\tilde{x}_{T-1} $$
+
+        where $x_t$ is the instantaneous data and $\tilde{x}_t$ is the
+        averaged data at time $t$.
+        """
+        if self.unaverage:
+            T=self.messagestep()
+            if T <= 1: self._previousdata=None
+            currentdata=self.read(self.recpertimestep)
+            self._currentdata=deepcopydatatolist(currentdata)
+            if self._previousdata:
+                ret=currentdata
+                for p,c,r in zip(self._previousdata, self._currentdata, ret):
+                    r["values"] = T*c - (T-1)*p
+                self._previousdata=self._currentdata
+                return ret
+            else:
+                #first step after spin up
+                self._previousdata=self._currentdata
+                return currentdata
+        else:
+            currentdata=self.read(self.recpertimestep)
+            return currentdata
     def next(self):
         if self.messagenumber + self.recpertimestep > self.messages:
             raise StopIteration
