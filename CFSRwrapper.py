@@ -36,11 +36,15 @@ class CFSRwrapper(pygrib.open):
     def __iter__(self):
         self.rewind()
         return self
+    def messagestep(self):
+        return self.messagenumber % ((self.spinup + self.nonspinup)*self.recpertimestep)
+    def isspinupstep(self):
+        return self.spinup and (self.messagestep() == 0)
     def step(self):
         return self.read(self.recpertimestep)
     def next(self):
         if self.messagenumber + self.recpertimestep > self.messages:
             raise StopIteration
-        if self.spinup and (self.messagenumber % ((self.spinup + self.nonspinup)*self.recpertimestep) == 0):
+        if self.isspinupstep():
             self.step()
         return self.step()
