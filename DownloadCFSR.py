@@ -4,6 +4,7 @@ from numpy import meshgrid,array
 
 years=array(range(1979,2010))
 months=array(range(1,13))
+fields=["wnd10m","tmp2m","dswsfc"]
 
 parser = OptionParser()
 parser.add_option("--year", dest="year", type=int,
@@ -26,7 +27,9 @@ parser.add_option("--debug",
 
 (options, args) = parser.parse_args()
 
-assert(options.field in ["wnd10m","tmp2m","dswsfc"])
+if options.field:
+    assert(options.field in fields)
+    fields=[options.field]
 
 if options.year:
     assert(options.year in years)
@@ -59,8 +62,9 @@ def wgetfile(field,years,months,lowresonly=False):
         map(lambda x: f.write(x + "\n"), createfilenames(field,y,m,lowresonly=lowresonly))
     return fname
 
-print "Creating wget file for data field", options.field
+print "Creating wget file for data field", fields
 print "for the years:", years
 print "and months:", months
-fname=wgetfile(options.field,years,months,lowresonly=options.lowresonly)
-print "now you use:\n    wget --base=%s --continue -nH -r --cut-dirs=2 --input-file=%s\nto download the files." % (base,fname) 
+for f in fields:
+    fname=wgetfile(f,years,months,lowresonly=options.lowresonly)
+    print "now you use:\n    wget --base=%s --continue -nH -r --cut-dirs=2 --input-file=%s\nto download the files." % (base,fname)
