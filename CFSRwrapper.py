@@ -25,11 +25,7 @@ class CFSRwrapper(pygrib.open):
             assert(nonspinup==None)
             assert(instant==None)
             assert(unaverage==None)
-            m=re.match("([^\./]+)\.l\.gdas\..*grb2",fname)
-            if m:
-                fieldname=m.groups()[0]
-            else:
-                fieldname=re.match("([^\./]+)\.gdas\..*grb2",fname).groups()[0]
+            fieldname=re.match("([^\./]+)(\.l\.|\.)gdas\..*grb2",fname).groups()[0]
             (self.recpertimestep,self.spinup,self.nonspinup,self.instant,self.unaverage)=self.fieldnametoparam[fieldname]
         else:
             self.recpertimestep=recpertimestep
