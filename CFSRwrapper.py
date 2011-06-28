@@ -4,6 +4,22 @@ import re
 def deepcopydatatolist(c):
     return map(lambda x: x["values"].copy() , c)
 
+class messagecontainer(object):
+    grbmsg=None
+    data=None
+    def __init__(self,grbmsg):
+        self.grbmsg=grbmsg
+        self.data=self.grbmsg.values.copy()
+    def __repr__(self):
+        return self.grbmsg.__repr__()
+    def getdata(self):
+        return self.data.copy()
+    def data2grbmsg(self):
+        self.grbmsg.values=self.data.copy()
+    def putdata(self,d):
+        self.data=d.copy()
+        self.data2grbmsg()
+
 class CFSRwrapper(pygrib.open):
     """Iterator for traversing grbs file skipping spin-up timestamps"""
     recpertimestep=None
