@@ -2,7 +2,7 @@ import pygrib
 import re
 
 def deepcopydatatolist(c):
-    return map(lambda x: x["values"].copy() , c)
+    return map(lambda x: x.getdata() , c)
 
 class messagecontainer(object):
     grbmsg=None
@@ -60,6 +60,8 @@ class CFSRwrapper(pygrib.open):
         return self.messagenumber/self.recpertimestep % ((self.spinup + self.nonspinup))
     def isspinupstep(self):
         return self.spinup and (self.messagestep() == 0)
+    def read(self,N=None):
+        return map(messagecontainer,pygrib.open.read(self,N))
     def step(self):
         """read the next step of the raw data series
 
@@ -82,7 +84,7 @@ class CFSRwrapper(pygrib.open):
             if self._previousdata:
                 ret=currentdata
                 for p,c,r in zip(self._previousdata, self._currentdata, ret):
-                    r["values"] = T*c - (T-1)*p
+                    r.putdata(T*c - (T-1)*p)
                 self._previousdata=self._currentdata
                 return ret
             else:
