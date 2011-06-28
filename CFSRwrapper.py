@@ -3,6 +3,13 @@ import re
 from pylab import vector_lengths
 import numpy
 
+def filenamefromfield(field,year,month,lowres=False):
+    if lowres:
+        lowres=".l."
+    else:
+        lowres="."
+    return "%s%sgdas.%i%02i.grb2" % (field,lowres,year,month)
+
 def deepcopydatatolist(c):
     return map(lambda x: x.getdata() , c)
 
