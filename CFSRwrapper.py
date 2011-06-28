@@ -1,8 +1,26 @@
 import pygrib
 import re
+from pylab import vector_lengths
+import numpy
 
 def deepcopydatatolist(c):
     return map(lambda x: x.getdata() , c)
+
+def ReduceToVecLengths(mcl):
+    """
+    Calculate absoulute value of vectors stored in a list of wrapped
+    grib messages
+
+    Danger Will Robinson: This function has side effects on the first
+    element of the list!
+
+    However, if it is used as 'Reduce' function in the iterator, noone
+    will ever see the original element, so we don't care about side
+    effects.
+    """
+    ret=mcl[0]
+    ret.putdata(vector_lengths(numpy.array(deepcopydatatolist(mcl)),axis=0))
+    return [ret]
 
 class messagecontainer(object):
     grbmsg=None
@@ -34,7 +52,8 @@ class CFSRwrapper(pygrib.open):
         }
     _previousdata=None
     _currentdata=None
-    def __init__(self, fname,recpertimestep=None,spinup=None,nonspinup=None,instant=None,unaverage=None,autoconf=True):
+    _Reduce=None
+    def __init__(self, fname,recpertimestep=None,spinup=None,nonspinup=None,instant=None,unaverage=None,autoconf=True,Reduce=None):
         if autoconf:
             assert(recpertimestep==None)
             assert(spinup==None)
@@ -50,6 +69,8 @@ class CFSRwrapper(pygrib.open):
             self.instant=instant
             self.unaverage=unaverage
         pygrib.open.__init__(self,fname)
+        if Reduce:
+            self._Reduce=Reduce
     def __new__(cls, fname, *args, **kwargs):
         obj=pygrib.open.__new__(cls, fname)
         return obj
@@ -99,4 +120,7 @@ class CFSRwrapper(pygrib.open):
             raise StopIteration
         if self.isspinupstep():
             self.step()
-        return self.step()
+        if self._Reduce:
+            return self._Reduce(self.step())
+        else:
+            return self.step()
