@@ -46,9 +46,9 @@ class CFSRwrapper(pygrib.open):
     instant=None
     unaverage=None
     fieldnametoparam={
-        'dswsfc':(1,1,6,False,True),
-        'tmp2m':(1,1,6,True,False),
-        'wnd10m':(2,1,6,True,False),
+        'dswsfc':(1,1,6,False,True,None),
+        'tmp2m':(1,1,6,True,False,None),
+        'wnd10m':(2,1,6,True,False,ReduceToVecLengths),
         }
     _previousdata=None
     _currentdata=None
@@ -60,17 +60,17 @@ class CFSRwrapper(pygrib.open):
             assert(nonspinup==None)
             assert(instant==None)
             assert(unaverage==None)
+            assert(Reduce==None)
             fieldname=re.match("([^\./]+)(\.l\.|\.)gdas\..*grb2",fname).groups()[0]
-            (self.recpertimestep,self.spinup,self.nonspinup,self.instant,self.unaverage)=self.fieldnametoparam[fieldname]
+            (self.recpertimestep,self.spinup,self.nonspinup,self.instant,self.unaverage,self._Reduce)=self.fieldnametoparam[fieldname]
         else:
             self.recpertimestep=recpertimestep
             self.spinup=spinup
             self.nonspinup=nonspinup
             self.instant=instant
             self.unaverage=unaverage
-        pygrib.open.__init__(self,fname)
-        if Reduce:
             self._Reduce=Reduce
+        pygrib.open.__init__(self,fname)
     def __new__(cls, fname, *args, **kwargs):
         obj=pygrib.open.__new__(cls, fname)
         return obj
