@@ -24,8 +24,8 @@ it=openfields(infields,2000,3,True)
 
 #convert just one timestep
 i=it.next()
-unpackandapply(i,PWconv)
+unpackandapply(i,PWconversion)
 
 #convert all
-iterateandapply(i,PWconv)
+iterateandapply(it,PWconversion)
 
