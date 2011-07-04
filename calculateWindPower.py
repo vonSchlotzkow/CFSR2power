@@ -4,7 +4,7 @@ def openfields(infields,year,month,lowres=False):
     import itertools
     r=[]
     for f in infields:
-        r.append(CFSRwrapper(filenamefromfield(f,2000,3,lowres)))
+        r.append(CFSRwrapper(filenamefromfield(f,year,month,lowres)))
     return itertools.izip(*r)
 
 def unpackandapply(i,conv,outf):
