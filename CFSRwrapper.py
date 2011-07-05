@@ -3,12 +3,12 @@ import re
 from pylab import vector_lengths
 import numpy
 
-def filenamefromfield(field,year,month,lowres=False):
+def filenamefromfield(field,year,month,lowres=False,basedir=""):
     if lowres:
         lowres=".l."
     else:
         lowres="."
-    return "%s%sgdas.%i%02i.grb2" % (field,lowres,year,month)
+    return "%s%i%02i/%s%sgdas.%i%02i.grb2" % (basedir,year,month,field,lowres,year,month)
 
 def deepcopydatatolist(c):
     return map(lambda x: x.getdata() , c)
@@ -68,7 +68,7 @@ class CFSRwrapper(pygrib.open):
             assert(instant==None)
             assert(unaverage==None)
             assert(Reduce==None)
-            fieldname=re.match("([^\./]+)(\.l\.|\.)gdas\..*grb2",fname).groups()[0]
+            fieldname=re.match("(|.*/)([^\./]+)(\.l\.|\.)gdas\..*grb2",fname).groups()[1]
             (self.recpertimestep,self.spinup,self.nonspinup,self.instant,self.unaverage,self._Reduce)=self.fieldnametoparam[fieldname]
         else:
             self.recpertimestep=recpertimestep
