@@ -15,25 +15,6 @@ parser.add_option("--debug",
 
 (options, args) = parser.parse_args()
 
-def openfields(infields,year,month,lowres=False):
-    import itertools
-    r=[]
-    for f in infields:
-        r.append(CFSRwrapper(filenamefromfield(f,year,month,lowres)))
-    return itertools.izip(*r)
-
-def unpackandapply(i,conv,outf):
-    rnp=conv(map(lambda x:x[0].data,i))
-    rmc=i[0][0]
-    rmc.putdata(rnp)
-    outf.write(rmc.grbmsg.tostring())
-    return rmc
-
-def iterateandapply(it,conv,outf):
-    assert(outf.mode=='wb')
-    for i in it:
-        rmc=unpackandapply(i,conv,outf)
-
 def PWconversion(i):
     """Plain Wrong conversion of windspeed and radiation to power"""
     return i[0]**3 + i[1]

@@ -132,3 +132,24 @@ class CFSRwrapper(pygrib.open):
             return self._Reduce(self.step())
         else:
             return self.step()
+
+def openfields(infields,year,month,lowres=False):
+    import itertools
+    r=[]
+    for f in infields:
+        r.append(CFSRwrapper(filenamefromfield(f,year,month,lowres)))
+    return itertools.izip(*r)
+
+def unpackandapply(i,conv,outf):
+    rnp=conv(map(lambda x:x[0].data,i))
+    rmc=i[0][0]
+    rmc.putdata(rnp)
+    # changing the units is not that easy, apparently the units have to match a 'concept'
+    #rmc.grbmsg.units='MW'
+    outf.write(rmc.grbmsg.tostring())
+    return rmc
+
+def iterateandapply(it,conv,outf):
+    assert(outf.mode=='wb')
+    for i in it:
+        rmc=unpackandapply(i,conv,outf)
