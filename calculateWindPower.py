@@ -25,11 +25,10 @@ it=openfields(infields,options.year,options.month,options.lowres)
 
 outf=file(filenamefromfield("PWpower",options.year,options.month,options.lowres),'wb')
 
-# #convert just one timestep
-#i=it.next()
-#unpackandapply(i,PWconversion,outf)
-
-# #convert all
-iterateandapply(it,PWconversion,outf)
-
-
+if options.debug:
+    #convert just one timestep
+    i=it.next()
+    unpackandapply(i,PWconversion,outf)
+else:
+    #convert all
+    iterateandapply(it,PWconversion,outf)
