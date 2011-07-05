@@ -1,4 +1,19 @@
 from CFSRwrapper import *
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("--year", dest="year", default=2000, type=int,
+                  help="year")
+parser.add_option("--month", dest="month", default=1, type=int,
+                  help="day of month")
+parser.add_option("--lowres",
+                  action="store_true", dest="lowres",
+                  help="convert low resolution data")
+parser.add_option("--debug",
+                  action="store_true", dest="debug",
+                  help="run in debug mode")
+
+(options, args) = parser.parse_args()
 
 def openfields(infields,year,month,lowres=False):
     import itertools
@@ -25,15 +40,15 @@ def PWconversion(i):
 
 infields=['wnd10m','dswsfc']
 
-it=openfields(infields,2000,3,True)
+it=openfields(infields,options.year,options.month,options.lowres)
 
-outf=file("PWconversion.output.grib",'wb')
+outf=file(filenamefromfield("PWpower",options.year,options.month,options.lowres),'wb')
 
 # #convert just one timestep
 #i=it.next()
 #unpackandapply(i,PWconversion,outf)
 
 # #convert all
-#iterateandapply(it,PWconversion,outf)
+iterateandapply(it,PWconversion,outf)
 
 
