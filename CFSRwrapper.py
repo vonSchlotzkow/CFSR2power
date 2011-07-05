@@ -3,12 +3,12 @@ import re
 from pylab import vector_lengths
 import numpy
 
-def filenamefromfield(field,year,month,lowres=False):
+def filenamefromfield(field,year,month,lowres=False,basedir=""):
     if lowres:
         lowres=".l."
     else:
         lowres="."
-    return "%s%sgdas.%i%02i.grb2" % (field,lowres,year,month)
+    return "%s%i%02i/%s%sgdas.%i%02i.grb2" % (basedir,year,month,field,lowres,year,month)
 
 def deepcopydatatolist(c):
     return map(lambda x: x.getdata() , c)
@@ -68,7 +68,7 @@ class CFSRwrapper(pygrib.open):
             assert(instant==None)
             assert(unaverage==None)
             assert(Reduce==None)
-            fieldname=re.match("([^\./]+)(\.l\.|\.)gdas\..*grb2",fname).groups()[0]
+            fieldname=re.match("(|.*/)([^\./]+)(\.l\.|\.)gdas\..*grb2",fname).groups()[1]
             (self.recpertimestep,self.spinup,self.nonspinup,self.instant,self.unaverage,self._Reduce)=self.fieldnametoparam[fieldname]
         else:
             self.recpertimestep=recpertimestep
@@ -108,6 +108,7 @@ class CFSRwrapper(pygrib.open):
             T=self.messagestep()
             if T <= 1: self._previousdata=None
             currentdata=self.read(self.recpertimestep)
+            currentdata[0].stepType='instant'
             self._currentdata=deepcopydatatolist(currentdata)
             if self._previousdata:
                 ret=currentdata
@@ -131,3 +132,24 @@ class CFSRwrapper(pygrib.open):
             return self._Reduce(self.step())
         else:
             return self.step()
+
+def openfields(infields,year,month,lowres=False):
+    import itertools
+    r=[]
+    for f in infields:
+        r.append(CFSRwrapper(filenamefromfield(f,year,month,lowres)))
+    return itertools.izip(*r)
+
+def unpackandapply(i,conv,outf):
+    rnp=conv(map(lambda x:x[0].data,i))
+    rmc=i[0][0]
+    rmc.putdata(rnp)
+    # changing the units is not that easy, apparently the units have to match a 'concept'
+    #rmc.grbmsg.units='MW'
+    outf.write(rmc.grbmsg.tostring())
+    return rmc
+
+def iterateandapply(it,conv,outf):
+    assert(outf.mode=='wb')
+    for i in it:
+        rmc=unpackandapply(i,conv,outf)

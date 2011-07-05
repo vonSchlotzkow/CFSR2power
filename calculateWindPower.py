@@ -1,18 +1,19 @@
 from CFSRwrapper import *
+from optparse import OptionParser
 
-def openfields(infields,year,month,lowres=False):
-    import itertools
-    r=[]
-    for f in infields:
-        r.append(CFSRwrapper(filenamefromfield(f,2000,3,lowres)))
-    return itertools.izip(*r)
+parser = OptionParser()
+parser.add_option("--year", dest="year", default=2000, type=int,
+                  help="year")
+parser.add_option("--month", dest="month", default=1, type=int,
+                  help="day of month")
+parser.add_option("--lowres",
+                  action="store_true", dest="lowres",
+                  help="convert low resolution data")
+parser.add_option("--debug",
+                  action="store_true", dest="debug",
+                  help="run in debug mode")
 
-def unpackandapply(i,conv):
-    return conv(map(lambda x:x[0].data,i))
-
-def iterateandapply(it,conv):
-    for i in it:
-        c=unpackandapply(i,conv)
+(options, args) = parser.parse_args()
 
 def PWconversion(i):
     """Plain Wrong conversion of windspeed and radiation to power"""
@@ -20,12 +21,15 @@ def PWconversion(i):
 
 infields=['wnd10m','dswsfc']
 
-it=openfields(infields,2000,3,True)
+it=openfields(infields,options.year,options.month,options.lowres)
 
-#convert just one timestep
-i=it.next()
-unpackandapply(i,PWconversion)
+outf=file(filenamefromfield("PWpower",options.year,options.month,options.lowres),'wb')
 
-#convert all
-iterateandapply(it,PWconversion)
+# #convert just one timestep
+#i=it.next()
+#unpackandapply(i,PWconversion,outf)
+
+# #convert all
+iterateandapply(it,PWconversion,outf)
+
 
