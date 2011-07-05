@@ -108,6 +108,7 @@ class CFSRwrapper(pygrib.open):
             T=self.messagestep()
             if T <= 1: self._previousdata=None
             currentdata=self.read(self.recpertimestep)
+            currentdata[0].stepType='instant'
             self._currentdata=deepcopydatatolist(currentdata)
             if self._previousdata:
                 ret=currentdata
