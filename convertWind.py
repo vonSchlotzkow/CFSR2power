@@ -20,20 +20,17 @@ def WindConversion(data):
     wind10m = data[0]
     
     #Turbine data
-    H = 80.   #Hub height
-    Vc = 3.   #Cut-in wind speed
-    Vo = 23.  #Cut-out wind speed
-    V = [3,4,5,6,7,8,9,10,11,12,12.5,23]   #Power curve
-    P = [0,.110,.230,.405,.720,1.080,1.480,1.800,2.100,2.370,2.600,0.000]
-    
-    #Convert wind speed to hub height
+    H = 80. #Hub height
+    V = [0,3,4,5,6,7,8,9,10,11,12,12.5,23.0,23.0] #Power curve velocities
+    POW = [0.000,0.000,.110,.230,.405,.720,1.080,1.480,1.800,2.100,2.370,2.600,2.600,0.000] #power from the power curves
+   
+    #Convert wind speed to hub height H from a height 10m above the ground
+    #0.143 is power law index which depends on roughness of the surface and assumed to be constant for the time being.
     wind = wind10m*((H/10)**0.143)
     
     #Apply power curve
-    P = interp(wind,V,P)
-    P[wind<=Vc] = 0.
-    P[wind>=Vo] = 0.
-    
+    P = interp(wind,V,POW) #interpolation using power curve data
+
     return P
 
 infields=['wnd10m']
