@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from CFSRwrapper import *
 from optparse import OptionGroup
 
