@@ -2,9 +2,9 @@
 from CFSRwrapper import *
 from optparse import OptionGroup
 
-locoptions=OptionGroup(parser, "PWconversion options", "Options related to PWconversion")
-locoptions.add_option("--nonsensfactor", dest="nonsensfactor", default=1, type=float,
-                      help="stupid factor of the plain wrong conversion")
+locoptions=OptionGroup(parser, "Wind conversion options", "Options related to converting ")
+locoptions.add_option("--turbinecurve", dest="turbinecurve", default=None, type=str,
+                      help="File containing the characteristic curve of a turbine")
 
 parser.add_option_group(locoptions)
 
@@ -12,15 +12,17 @@ parser.add_option_group(locoptions)
 
 def PWconversion(i,nonsensfactor):
     """Plain Wrong conversion of windspeed and radiation to power"""
-    return i[0]**3 + nonsensfactor*i[1]
+    return i[0]**3
 
-infields=['wnd10m','dswsfc']
+infields=['wnd10m']
 
 it=openfields(infields,options.year,options.month,options.lowres)
 
-outf=file(filenamefromfield("PWpower",options.year,options.month,options.lowres),'wb')
+outf=file(filenamefromfield("WindPower",options.year,options.month,options.lowres),'wb')
 
-convfunc=lambda x:PWconversion(x,options.nonsensfactor)
+#example of binding additional options to the conversion function
+#convfunc=lambda x:PWconversion(x,options.nonsensfactor)
+convfunc=PWconversion
 
 if options.debug:
     #convert just one timestep
