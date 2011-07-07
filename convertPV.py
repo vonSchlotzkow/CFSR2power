@@ -20,6 +20,10 @@ infields=['dswsfc','tmp2m']
 spec=StringIO("""
 # Solar panel data
 name = string
+# The manufacturer of this panel
+manufacturer = string
+# Link to the original datasheet of the panel
+source = string
 
 # Solar radiation below which the panel stops giving useful power
 threshold = float
