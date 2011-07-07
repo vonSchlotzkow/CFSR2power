@@ -9,6 +9,9 @@ from StringIO import StringIO
 locoptions=OptionGroup(parser, "Wind conversion options", "Options related to converting ")
 locoptions.add_option("--turbinecurve", dest="turbinecurve", default=None, type=str,
                       help="File containing the characteristic curve of a turbine")
+locoptions.add_option("--verifyturbinecurve", dest="verifyturbinecurve",
+                      action="store_true",
+                      help="Help verifying the turbine curve given in the cfg file by plotting it.")
 
 parser.add_option_group(locoptions)
 
@@ -70,6 +73,15 @@ outf=file(filenamefromfield("WindPower_%s" % turbineconfig['name'],options.year,
 
 #example of binding additional options to the conversion function
 convfunc=lambda x:WindConversion(x,turbineconfig)
+
+if options.verifyturbinecurve:
+    # plot interpolated power curve
+    from pylab import arange,plot,title,show
+    v=arange(0,50,0.1)
+    plot(v,interp(v,turbineconfig['V'],turbineconfig['POW']),label=turbineconfig['name'])
+    title(turbineconfig['manufacturer'])
+    show()
+    exit()
 
 if options.debug:
     #convert just one timestep
