@@ -46,6 +46,7 @@ turbineconfig.validate(Validator())
 # it would be more elegant to give the requirement for lists of floats
 # in the spec, which should result in a conversion to floats at the
 # same time, but well...
+assert(len(turbineconfig['V'])==len(turbineconfig['POW']))
 for listkey in ['V','POW']:
     turbineconfig[listkey]=map(float,turbineconfig[listkey])
 
@@ -67,21 +68,21 @@ def WindConversion(data,c):
 
     return P
 
+if options.verifyturbinecurve:
+    # plot interpolated power curve
+    from pylab import arange,plot,title,show
+    v=arange(0,30,0.1)
+    plot(v,interp(v,turbineconfig['V'],turbineconfig['POW']),label=turbineconfig['name'])
+    title("%s: %s" % (turbineconfig['manufacturer'],turbineconfig['name']))
+    show()
+    exit()
+
 it=openfields(infields,options.year,options.month,options.lowres)
 
 outf=file(filenamefromfield("WindPower_%s" % turbineconfig['name'],options.year,options.month,options.lowres),'wb')
 
 #example of binding additional options to the conversion function
 convfunc=lambda x:WindConversion(x,turbineconfig)
-
-if options.verifyturbinecurve:
-    # plot interpolated power curve
-    from pylab import arange,plot,title,show
-    v=arange(0,50,0.1)
-    plot(v,interp(v,turbineconfig['V'],turbineconfig['POW']),label=turbineconfig['name'])
-    title(turbineconfig['manufacturer'])
-    show()
-    exit()
 
 if options.debug:
     #convert just one timestep
