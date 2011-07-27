@@ -105,10 +105,10 @@ class CFSRwrapper(pygrib.open):
         where $x_t$ is the instantaneous data and $\tilde{x}_t$ is the
         averaged data at time $t$.
         """
+        currentdata=self.read(self.recpertimestep)
         if self.unaverage:
             T=self.messagestep()
             if T <= 1: self._previousdata=None
-            currentdata=self.read(self.recpertimestep)
             currentdata[0].stepType='instant'
             self._currentdata=deepcopydatatolist(currentdata)
             if self._previousdata:
@@ -120,10 +120,8 @@ class CFSRwrapper(pygrib.open):
             else:
                 #first step after spin up
                 self._previousdata=self._currentdata
-                return currentdata
-        else:
-            currentdata=self.read(self.recpertimestep)
-            return currentdata
+        return currentdata
+
     def next(self):
         if self.messagenumber + self.recpertimestep > self.messages:
             raise StopIteration
