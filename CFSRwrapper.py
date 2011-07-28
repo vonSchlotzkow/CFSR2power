@@ -46,6 +46,38 @@ class messagecontainer(object):
         self.data=d.copy()
         self.data2grbmsg()
 
+    def createmask(self,f):
+        """create a bitmap mask defined by the boolean function f(lat,lon)
+
+        nonsense lambda function to use:
+        (lambda la,lo: [True,False][(int((la+lo)/10.)%2)])
+        """
+        la,lo=self.grbmsg.latlons()
+        return numpy.vectorize(f)(la,lo)
+    
+    def applymask(self,m):
+        """return a masked array containg the data of the current grib message masked with m
+
+        BEWARE: a value of True in m means that this pixel will be masked out!
+
+        use create/apply mask like this:
+        m=I.createmask(sillymask)
+        mw=I.applymask(m==False)
+        """
+        return (numpy.ma.masked_array(self.grbmsg.values,mask=m))
+
+def sillymask(la,lo):
+    x=complex(0.,0.)
+    c=complex(((lo-180.)/90.),la/90.)
+    for i in range(100):
+        try:
+            x=x**2+c
+            if abs(x)>2:
+                return False
+        except OverflowError:
+            return False
+    return abs(x)<2.
+
 class CFSRwrapper(pygrib.open):
     """Iterator for traversing grbs file skipping spin-up timestamps"""
     recpertimestep=None
